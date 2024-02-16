@@ -7,9 +7,6 @@ on:
         description: extensions to add (comma start if add)
         type: string
         default: ''
-      without_deploy:
-        type: boolean
-        default: false
 
 jobs:
   build-release-artifacts:

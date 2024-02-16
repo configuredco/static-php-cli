@@ -2,11 +2,6 @@ name: Build Self-Hosted PHP Binary (common)
 
 on:
   workflow_dispatch:
-    inputs:
-      add_extensions:
-        description: extensions to add (comma start if add)
-        type: string
-        default: ''
 
 jobs:
   build-release-artifacts:
@@ -65,7 +60,7 @@ jobs:
       - name: "Download sources"
         env:
           GITHUB_TOKEN: ${{ secrets.S_GITHUB_TOKEN }}
-        run: ./spc download --with-php=${{ matrix.php-version }} --for-extensions=${{ matrix.extensions }}${{ inputs.add_extensions }}
+        run: ./spc download --with-php=${{ matrix.php-version }} --for-extensions=${{ matrix.extensions }}
 
       - name: "Build library: ${{ matrix.library }}"
         run: |

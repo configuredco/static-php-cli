@@ -25,7 +25,6 @@ jobs:
         operating-system:
           - "ubuntu-latest"
           - "macos-latest"
-          - "debian-arm64-self-hosted"
           - "macos-14"
         extensions:
           - bcmath,bz2,calendar,ctype,curl,dom,exif,fileinfo,filter,ftp,gd,gmp,iconv,xml,mbstring,mbregex,mysqlnd,openssl,pcntl,pdo,pdo_mysql,pdo_sqlite,phar,posix,redis,session,simplexml,soap,sockets,sqlite3,tokenizer,xmlwriter,xmlreader,zlib,zip
@@ -42,8 +41,6 @@ jobs:
               OS="linux-x86_64"
           elif [ "${{ matrix.operating-system }}" = "macos-latest" ]; then
               OS="macos-x86_64"
-          elif [ "${{ matrix.operating-system }}" = "debian-arm64-self-hosted" ]; then
-              OS="linux-aarch64"
           elif [ "${{ matrix.operating-system }}" = "macos-14" ]; then
               OS="macos-aarch64"
           fi

@@ -77,7 +77,7 @@ jobs:
       - name: "Build library: ${{ matrix.library }}"
         run: |
           SPC_USE_SUDO=yes ./spc doctor --auto-fix
-          ./spc build --build-cli --build-micro --build-fpm ${{ matrix.extensions }}${{ inputs.add_extensions }} --debug
+          ./spc build --build-cli --build-micro --with-micro-fake-cli --build-fpm ${{ matrix.extensions }}${{ inputs.add_extensions }} --debug
           PHPVER=$(cat source/php-src/main/php_version.h | grep "PHP_VERSION " | awk -F\" '{print $2}')
           mkdir dist/
           tar -czf dist/php-$PHPVER-cli-$OS.tar.gz -C buildroot/bin/ php
@@ -88,18 +88,6 @@ jobs:
             cp buildroot/build-extensions.json dist/
             cp buildroot/build-libraries.json dist/
           fi
-
-      - if: inputs.without_deploy != true
-        name: Deploy to Zhamao Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SERVER_SECRET_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "dist/"
-          REMOTE_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
-          REMOTE_PORT: ${{ secrets.DEPLOY_SERVER_PORT }}
-          REMOTE_USER: ${{ secrets.DEPLOY_SERVER_USER }}
-          TARGET: ${{ secrets.DEPLOY_SERVER_TARGET }}
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v3

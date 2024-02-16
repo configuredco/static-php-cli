@@ -18,7 +18,6 @@ jobs:
         operating-system:
           - "ubuntu-latest"
           - "macos-latest"
-          - "debian-arm64-self-hosted"
           - "macos-14"
         extensions:
           - pcntl,posix,mbstring,tokenizer,phar
@@ -35,8 +34,6 @@ jobs:
               OS="linux-x86_64"
           elif [ "${{ matrix.operating-system }}" = "macos-latest" ]; then
               OS="macos-x86_64"
-          elif [ "${{ matrix.operating-system }}" = "debian-arm64-self-hosted" ]; then
-              OS="linux-aarch64"
           elif [ "${{ matrix.operating-system }}" = "macos-14" ]; then
               OS="macos-aarch64"
           fi
@@ -70,7 +67,7 @@ jobs:
       - name: "Build library: ${{ matrix.library }}"
         run: |
           SPC_USE_SUDO=yes ./spc doctor --auto-fix
-          ./spc build --build-cli --build-micro --build-fpm ${{ matrix.extensions }} --debug
+          ./spc build --build-cli --build-micro --with-micro-fake-cli --build-fpm ${{ matrix.extensions }} --debug
           PHPVER=$(cat source/php-src/main/php_version.h | grep "PHP_VERSION " | awk -F\" '{print $2}')
           mkdir dist/
           tar -czf dist/php-$PHPVER-cli-$OS.tar.gz -C buildroot/bin/ php

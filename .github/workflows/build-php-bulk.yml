@@ -9,16 +9,15 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         php-version:
-          - "8.0"
           - "8.1"
           - "8.2"
           - "8.3"
         operating-system:
           - "ubuntu-latest"
           - "macos-latest"
-          - "debian-arm64-self-hosted"
           - "macos-14"
         extensions:
           - apcu,bcmath,bz2,calendar,ctype,curl,dba,dom,event,exif,fileinfo,filter,ftp,gd,gmp,iconv,imagick,imap,intl,mbregex,mbstring,mysqli,mysqlnd,opcache,openssl,pcntl,pdo,pdo_mysql,pdo_pgsql,pdo_sqlite,pgsql,phar,posix,protobuf,readline,redis,session,shmop,simplexml,soap,sockets,sodium,sqlite3,swoole,sysvmsg,sysvsem,sysvshm,tokenizer,xml,xmlreader,xmlwriter,xsl,zip,zlib
@@ -35,8 +34,6 @@ jobs:
               OS="linux-x86_64"
           elif [ "${{ matrix.operating-system }}" = "macos-latest" ]; then
               OS="macos-x86_64"
-          elif [ "${{ matrix.operating-system }}" = "debian-arm64-self-hosted" ]; then
-              OS="linux-aarch64"
           elif [ "${{ matrix.operating-system }}" = "macos-14" ]; then
               OS="macos-aarch64"
           fi
@@ -70,7 +67,7 @@ jobs:
       - name: "Build library: ${{ matrix.library }}"
         run: |
           SPC_USE_SUDO=yes ./spc doctor --auto-fix
-          ./spc build --build-cli --build-micro --build-fpm ${{ matrix.extensions }} --debug
+          ./spc build --build-cli --build-micro --with-micro-fake-cli --build-fpm ${{ matrix.extensions }} --debug
           PHPVER=$(cat source/php-src/main/php_version.h | grep "PHP_VERSION " | awk -F\" '{print $2}')
           mkdir dist/
           tar -czf dist/php-$PHPVER-cli-$OS.tar.gz -C buildroot/bin/ php
@@ -81,17 +78,6 @@ jobs:
             cp buildroot/build-extensions.json dist/
             cp buildroot/build-libraries.json dist/
           fi
-
-      - name: Deploy to Zhamao Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SERVER_SECRET_KEY }}
-          ARGS: "-rltgoDzvO"
-          SOURCE: "dist/"
-          REMOTE_HOST: ${{ secrets.DEPLOY_SERVER_HOST }}
-          REMOTE_PORT: ${{ secrets.DEPLOY_SERVER_PORT }}
-          REMOTE_USER: ${{ secrets.DEPLOY_SERVER_USER }}
-          TARGET: ${{ secrets.DEPLOY_SERVER_TARGET_BULK }}
 
       - name: "Upload Artifact"
         uses: actions/upload-artifact@v3
